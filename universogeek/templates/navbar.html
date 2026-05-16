@@ -1,0 +1,15 @@
+<header>
+        <nav>
+          <a href="{{ url_for('feed') }}" class="logo-pinterest" style="text-decoration: none">
+             <header class="navbar">
+        <img src="{{ url_for('static', filename='fotos_site/logo') }}" alt="Logo do Site" class="logo">
+              <h1>Universo Geek</h1>
+          </header>
+          </a>
+
+          <div class="restante-nav">
+            <p class="botao-perfil"><a href="{{ url_for('perfil', id_usuario=current_user.id) }}" class="link-nav">Perfil</a></p>
+            <a href="{{ url_for('logout') }}" class="link-nav">Sair</a>
+          </div>
+        </nav>
+      </header>

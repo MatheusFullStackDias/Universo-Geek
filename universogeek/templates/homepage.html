@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block titulo %}
+        Universo Geek
+        {% endblock %}</title>
+  </head>
+{% block body %}
+  <body class="overflow-hidden">
+    <div class="container">
+      <header>
+        <nav>
+          <header class="navbar">
+        <img src="{{ url_for('static', filename='fotos_site/logo') }}" alt="Logo do Site" class="logo">
+              <h1>Universo Geek</h1>
+          </header>
+            <h1>universo Geek</h1>
+
+          <div class="restante-nav">
+            <a href="" class="link-nav">About</a>
+            <a href="" class="link-nav">Business</a>
+            <a href="" class="link-nav">Blog</a>
+          </div>
+        </nav>
+      </header>
+
+      <img src="{{ url_for('static', filename='fotos_site/fundo-login.png') }}" class="bg-imagem-pinterest" />
+
+      <div class="container-popup">
+          {% block forrmulario %}
+
+        <form method="POST" class="popup">
+                {{ form.csrf_token }}
+          <svg
+            height="40"
+            viewBox="-3 -3 82 82"
+            width="40"
+            style="display: block"
+          >
+           <header class="navbar">
+        <img src="{{ url_for('static', filename='fotos_site/logo') }}" alt="Logo do Site" class="logo">
+              <h1>Universo geek</h1>
+          </header>
+
+          </svg>
+
+          <h2>Bem-vindo(a) ao Universo geek</h2>
+
+          <div class="div-input">
+              {{ form.email.label(class="label") }}
+             {% if form.email.errors %}
+              {% for erro in form.email.errors %}
+              <p style="color: red">{{erro}}</p>
+              {% endfor %}
+              {% endif %}
+              {{ form.email(class="input") }}
+          </div>
+
+          <div class="div-input">
+              {{ form.senha.label(class="label") }}
+              {{ form.senha(class="input") }}
+          </div>
+
+          <div class="div-botao">
+              {{ form.botao_confirmacao(class="botao-login") }}
+            <a href="{{ url_for('criarConta') }}" class="link-criarconta">Não tem uma conta? Crie aqui</a>
+          </div>
+        </form>
+          {% endblock %}
+      </div>
+    </div>
+  </body>
+{% endblock %}

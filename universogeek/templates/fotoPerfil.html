@@ -1,0 +1,53 @@
+{% extends "homepage.html" %}
+
+{% block titulo %}
+Perfil - {{ usuario.username }}
+{% endblock %}
+
+{% block body %}
+<body>
+
+{% include "navbar.html" %}
+
+<form method="POST" action="" enctype="multipart/form-data" class="form-perfil">
+    <label for="foto" class="bloco-upload" id="bloco-upload-container">
+        <span id="texto-bloco">Clique aqui para escolher a foto</span>
+        <input type="file" name="foto_perfil" id="foto">
+    </label>
+
+    <button type="submit" id="botao-salvar" class="btn-salvar">Salvar</button>
+</form>
+
+<img src="{{ url_for('static', filename='foto_perfil/' + current_user.image_file) }}"
+     class="logo foto-perfil-rosto avatar"
+     style="width: 150px; height: 150px; object-fit: cover; border-radius: 70%;">
+
+<script>
+    let input = document.getElementById("foto");
+    let blocoUpload = document.getElementById("bloco-upload-container");
+    let textoBloco = document.getElementById("texto-bloco");
+    let botaoSalvar = document.getElementById("botao-salvar");
+
+    input.addEventListener("change", () => {
+        if (input.files && input.files[0]) {
+            let inputImagem = input.files[0];
+
+            // 1. Adiciona a classe verde ao bloco de upload
+            blocoUpload.classList.add("visivel");
+
+            // 2. Substitui o texto original pelo nome do arquivo escolhido
+            textoBloco.innerText = "Arquivo: " + inputImagem.name;
+
+            // 3. Adiciona a classe que deixa o botão VERMELHO e clicável
+            botaoSalvar.classList.add("ativo");
+        } else {
+            // Caso o usuário cancele a escolha, volta ao padrão
+            blocoUpload.classList.remove("visivel");
+            textoBloco.innerText = "Clique aqui para escolher a foto";
+            botaoSalvar.classList.remove("ativo");
+        }
+    });
+</script>
+
+</body>
+{% endblock %}
