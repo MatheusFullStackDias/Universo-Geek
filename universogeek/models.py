@@ -11,9 +11,9 @@ def load_usuario(id_usuario):
 
 class Usuario(database.Model, UserMixin):
     id = database.Column(database.Integer, primary_key=True )
-    username = database.Column(database.String, nullable=False, unique=True)
-    email = database.Column(database.String, nullable=False, unique=True)
-    senha = database.Column(database.String, nullable=False)
+    username = database.Column(database.String(30), nullable=False, unique=True)
+    email = database.Column(database.String(120), nullable=False, unique=True)
+    senha = database.Column(database.String(60), nullable=False)
     fotos = database.relationship("Foto", backref="usuario", lazy=True)
     image_file = database.Column(database.String(500), nullable=False, default='default.jpg')
 

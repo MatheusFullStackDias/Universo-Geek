@@ -6,6 +6,11 @@ from universogeek.models import Usuario, Foto
 import os
 from secrets import token_hex
 from werkzeug.utils import secure_filename
+from supabase import create_client, Client
+
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://muklibpouqlxhlkcngob.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_GcG5B0U-24yoUu3lBrU29w_ZlOU8Pic")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route("/", methods=["GET", "POST"])
 def homepage():
@@ -31,28 +36,44 @@ def criarConta():
         return redirect(url_for("perfil", id_usuario=usuario.id))
     return render_template("criarConta.html", form=formCriarConta)
 
-@app.route("/perfil/<id_usuario>", methods=["GET", "POST"])
+@app.route("/perfil/<int:id_usuario>", methods=["GET", "POST"])
 @login_required
 def perfil(id_usuario):
-    if int(id_usuario) == int(current_user.id):
-        #O USUARIO ESTA VENDO O PERFIL DELE
+    # Mudança preventiva: usando int direto no parâmetro da rota (<int:id_usuario>)
+    # evita erros caso o navegador envie textos acidentalmente para cá.
+    if id_usuario == current_user.id:
+        # O USUARIO ESTA VENDO O PERFIL DELE
         formsfotos = FormsFotos()
+
         if formsfotos.validate_on_submit():
             arquivo = formsfotos.foto.data
             nome_seguro = secure_filename(arquivo.filename)
-            # Salvar o arquivo na pasta fotos_posts
-            caminho = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                   app.config["UPLOAD_FOLDER"],
-                                   nome_seguro)
-            arquivo.save(caminho)
-            # Registrar o arquivo no banco de dados
-            foto = Foto(imagen=nome_seguro, id_usuario=current_user.id)
+
+            # --- MUDANÇA PARA O SUPABASE ---
+            # 1. Ler os dados binários do arquivo para enviar para a nuvem
+            dados_arquivo = arquivo.read()
+
+            # 2. Enviar o arquivo para a raiz do seu bucket 'fotos_posts'
+            supabase.storage.from_("fotos_posts").upload(
+                path=nome_seguro,
+                file=dados_arquivo,
+                file_options={"content-type": arquivo.content_type}
+            )
+
+            # 3. Buscar a URL pública completa do arquivo que acabou de subir
+            url_publica = supabase.storage.from_("fotos_posts").get_public_url(nome_seguro)
+
+            # 4. Registrar a URL COMPLETA no banco de dados
+            foto = Foto(imagen=url_publica, id_usuario=current_user.id)
             database.session.add(foto)
             database.session.commit()
+            # ---------------------------------
+
             return redirect(url_for('perfil', id_usuario=current_user.id))
+
         return render_template("perfil.html", usuario=current_user, form=formsfotos)
     else:
-        usuario = Usuario.query.get(int(id_usuario))
+        usuario = Usuario.query.get_or_404(id_usuario)
         return render_template("perfil.html", usuario=usuario, form=None)
 
 @app.route("/logout")
@@ -70,20 +91,31 @@ def avatar():
             # 1. Pegar o arquivo enviado
             arquivo = request.files['foto_perfil']
 
-            # 2. Gerar um nome aleatório para evitar nomes duplicados
+            # 2. Gerar um nome seguro e aleatório para a foto
             random_hex = token_hex(8)
             _, f_ext = os.path.splitext(arquivo.filename)
-            nome_final = random_hex + f_ext
+            nome_final = f"{random_hex}{f_ext}"
 
-            # 3. Caminho onde a foto será salva
-            caminho_completo = os.path.join(current_app.root_path, 'static/foto_perfil', nome_final)
+            # 3. Ler os dados binários do arquivo (diretamente da memória, sem salvar no disco)
+            dados_arquivo = arquivo.read()
+            caminho_no_bucket = f"{nome_final}"
 
-            # 4. Salvar o arquivo no disco
-            arquivo.save(caminho_completo)
+            # 4. Fazer o upload para o bucket do Supabase
+            supabase.storage.from_("fotos_posts").upload(
+                path=caminho_no_bucket,
+                file=dados_arquivo,
+                file_options={"content-type": arquivo.content_type}
+            )
 
-            # 5. Atualizar o banco de dados do usuário logado
-            current_user.image_file = nome_final
+            # 5. Buscar a URL pública gerada pelo Supabase
+            url_publica = supabase.storage.from_("fotos_posts").get_public_url(caminho_no_bucket)
+
+            # 6. Atualizar a coluna do usuário com a URL completa e salvar no banco de dados
+            current_user.image_file = url_publica
             database.session.commit()
+
+            # Aplicando o padrão PRG para evitar duplicação ao atualizar a página (F5)
+            return redirect(url_for('perfil', id_usuario=current_user.id))
 
     return render_template("fotoPerfil.html", usuario=current_user)
 

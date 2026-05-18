@@ -18,7 +18,7 @@ Perfil - {{ usuario.username }}
     <button type="submit" id="botao-salvar" class="btn-salvar">Salvar</button>
 </form>
 
-<img src="{{ url_for('static', filename='foto_perfil/' + current_user.image_file) }}"
+<img src="{{ usuario.image_file }}"
      class="logo foto-perfil-rosto avatar"
      style="width: 150px; height: 150px; object-fit: cover; border-radius: 70%;">
 

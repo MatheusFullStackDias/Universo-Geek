@@ -13,9 +13,13 @@ Perfil - {{ usuario.username }}
 {% if form %}
 <div class="container">
     <a href="{{ url_for('avatar', usuario=current_user) }}" class="bloco-imagem">
-          <img src="{{ url_for('static', filename='foto_perfil/' + current_user.image_file) }}"
-          class="logo foto-perfil-rosto avatar"
-            style="width: 150px; height: 150px; border-radius: 70%; object-fit: cover;">
+        {% if 'http' in usuario.image_file %}
+         <img src="{{ usuario.image_file }}"
+     class="logo foto-perfil-rosto avatar"
+     style="width: 150px; height: 150px; object-fit: cover; border-radius: 70%;">
+        {% else %}
+         <img src="{{ url_for('static', filename='foto_perfil/default.jpg') }}" class="logo foto-perfil-rosto avatar">
+        {% endif %}
         </a>
         <form class="bloco-add-img" method="POST" enctype="multipart/form-data">
             {{ form.csrf_token }}
@@ -32,9 +36,13 @@ Perfil - {{ usuario.username }}
             {{ form.botao_enviar(class="botao-login") }}
         </form>
 {% else %}
-    <img src="{{ url_for('static', filename='foto_perfil/' + current_user.image_file) }}"
-          class="logo foto-perfil-rosto avatar"
-            style="width: 150px; height: 150px; border-radius: 70%; object-fit: cover;">
+    {% if 'http' in usuario.image_file %}
+         <img src="{{ usuario.image_file }}"
+     class="logo foto-perfil-rosto avatar"
+     style="width: 150px; height: 150px; object-fit: cover; border-radius: 70%;">
+        {% else %}
+         <img src="{{ url_for('static', filename='foto_perfil/default.jpg') }}" class="logo foto-perfil-rosto avatar">
+        {% endif %}
     <div class="bloco-add-img">
         <h1>{{ usuario.username }} - Ver Perfil</h1>
     </div>
@@ -45,13 +53,13 @@ Perfil - {{ usuario.username }}
 <div class="conteudo" id="galeria-container">
 {%for fotos in usuario.fotos %}
         <div class="card-foto bloco-imagem">
-          <img src="{{ url_for('static', filename='fotos_posts/{}'.format(fotos.imagen)) }}" class="fotos"/>
+          <img src="{{ fotos.imagen }}" class="fotos"/>
             {% if usuario.id == current_user.id %}
                 <form action="{{ url_for('excluir_foto', id_foto=fotos.id) }}" method="POST" class="form-excluir" onsubmit="return confirm('Tem certeza que deseja deletar esta foto?');">
                     <button type="submit" class="btn-excluir">&times;</button>
                 </form>
-    {% endif %}
-        </div>
+            {% endif %}
+            </div>
 
 {%endfor%}
     </div>
