@@ -58,8 +58,12 @@ Follow these steps to set up the development environment:
 
 ---
 
-## 🧑‍💻 Autor
+## 💻 Autor
 
 Desenvolvido com ☕ e 💻 por **Matheus Galvão Dias** * **LinkedIn:** [in/dev-matheus-galvão-dias-624720365](https://www.linkedin.com/in/dev-matheus-galvão-dias-624720365/)
 * **E-mail:** [matheusgalvaodias3@gmail.com](mailto:matheusgalvaodias3@gmail.com)
 * **Portfólio/GitHub:** [github.com/MatheusFullStackDias](https://github.com/MatheusFullStackDias)
+
+## 🚀 Deploy
+
+O projeto está publicado e pode ser acessado em: [Universo Geek](https://universo-geek-u8bw.onrender.com)
